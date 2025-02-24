@@ -400,7 +400,7 @@ abstract class SwaggerModelsGenerator extends SwaggerGeneratorBase {
         final scalar = options.scalars[parameter.format];
         if (scalar != null) {
           return scalar.type;
-        } else if (parameter.format == 'date-time' || parameter.format == 'date') {
+        } else if (kDateTimeFormats.contains(parameter.format)) {
           return 'DateTime';
         } else if (parameter.isEnum) {
           return 'enums.${getValidatedClassName(generateEnumName(getValidatedClassName(className), parameterName))}';
@@ -806,8 +806,8 @@ static $returnType $fromJsonFunction($valueType? value) => $enumNameCamelCase$fr
     final refSchema = allClasses[getValidatedClassName(parameterName)];
     if (kBasicSwaggerTypes.contains(refSchema?.type) &&
         allClasses[getValidatedClassName(parameterName)]?.isEnum != true) {
-      if (refSchema?.format == 'datetime') {
-        typeName = 'DateTime';
+      if (kDateTimeFormats.contains(refSchema?.format)) {
+        typeName = kDateTimeType;
       } else {
         typeName = kBasicTypesMap[refSchema?.type]!;
       }
@@ -849,8 +849,11 @@ static $returnType $fromJsonFunction($valueType? value) => $enumNameCamelCase$fr
 
     final includeIfNullString = generateIncludeIfNullString();
 
+    final dateToJsonValue =
+        refSchema != null ? generateToJsonForDate(refSchema) : '';
+
     final jsonKeyContent =
-        "@JsonKey(name: '${_validatePropertyKey(propertyKey)}'$includeIfNullString${unknownEnumValue.jsonKey})\n";
+        "@JsonKey(name: '${_validatePropertyKey(propertyKey)}'$includeIfNullString${unknownEnumValue.jsonKey}$dateToJsonValue)\n";
 
     final deprecatedContent =
         refSchema?.deprecated == true ? kDeprecatedAnnotation : '';
@@ -1366,7 +1369,7 @@ static $returnType $fromJsonFunction($valueType? value) => $enumNameCamelCase$fr
         final scalar = options.scalars[format];
         if (scalar != null) {
           return scalar.type;
-        } else if (format == 'date-time' || format == 'datetime') {
+        } else if (kDateTimeFormats.contains(format)) {
           return kDateTimeType;
         } else {
           return 'String';

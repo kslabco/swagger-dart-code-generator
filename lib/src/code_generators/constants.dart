@@ -28,6 +28,7 @@ const kBasicSwaggerTypes = [
   'number',
 ];
 
+const kDateTimeFormats = {'date', 'datetime', 'date-time'};
 const kMap = 'Map';
 const kMapStringDynamic = 'Map<String,dynamic>';
 const kRequired = 'required';
